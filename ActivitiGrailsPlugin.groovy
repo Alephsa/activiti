@@ -19,7 +19,7 @@ import grails.util.GrailsNameUtils
 import grails.util.Environment
 import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
-import org.grails.activiti.task.GlobalUserTaskEventListener
+//import org.grails.activiti.task.GlobalUserTaskEventListener
 import org.springframework.core.io.Resource 
 import org.grails.activiti.ActivitiConstants
 import org.grails.activiti.serializable.SerializableVariableType
@@ -113,7 +113,7 @@ class ActivitiGrailsPlugin {
                  *      myCreateTaskListener2(MyCreateTaskListener2)
                  *      myAssignmentTaskListener1(MyAssignmentTaskListener1Service)
                  *      ...
-                 */
+                 
                 globalUserTaskEventListener(GlobalUserTaskEventListener) {
                     def listeners = []
                     listeners = activitiListenersRef(application.config.activiti.globalCreateTaskListenersName)
@@ -132,7 +132,7 @@ class ActivitiGrailsPlugin {
                         isUsedGlobalUserTaskEventListener = true
                     }
                 }          
-				
+				*/
 		    	processEngineConfiguration(org.activiti.spring.SpringProcessEngineConfiguration) {
 		            processEngineName = CH.config.activiti.processEngineName?:ActivitiConstants.DEFAULT_PROCESS_ENGINE_NAME
 		            databaseType = CH.config.activiti.databaseType?:ActivitiConstants.DEFAULT_DATABASE_TYPE
