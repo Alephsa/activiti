@@ -15,9 +15,8 @@
 package org.grails.activiti
 
 import org.activiti.engine.task.Task
-import org.codehaus.groovy.grails.commons.ApplicationHolder as AH
+import grails.util.Holders
 import grails.util.GrailsNameUtils
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 
 /**
  *
@@ -31,8 +30,8 @@ class ActivitiService {
 	def taskService
 	def identityService
 	def formService
-	String sessionUsernameKey = CH.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY
-	String usernamePropertyName = CH.config.grails.plugins.springsecurity.userLookup.usernamePropertyName
+	String sessionUsernameKey = Holders.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY
+	String usernamePropertyName = Holders.config.grails.plugins.springsecurity.userLookup.usernamePropertyName
 	
 	def startProcess(Map params) {
 		if (params.businessKey) {
@@ -76,7 +75,7 @@ class ActivitiService {
 	}
 	
 	def findAssignedTasks(Map params) {
-		def orderBy = CH.config.activiti.assignedTasksOrderBy?:[:]
+		def orderBy = Holders.config.activiti.assignedTasksOrderBy?:[:]
 		if (params.sort) {
 			orderBy << ["${params.sort}":params.order]
 		}
@@ -84,7 +83,7 @@ class ActivitiService {
 	}
 	
 	def findUnassignedTasks(Map params) {
-		def orderBy = CH.config.activiti.unassignedTasksOrderBy?:[:]		
+		def orderBy = Holders.config.activiti.unassignedTasksOrderBy?:[:]		
 		if (params.sort) {
 			orderBy << ["${params.sort}":params.order]
 		}
@@ -92,7 +91,7 @@ class ActivitiService {
 	}		
 	
 	def findAllTasks(Map params) {
-		def orderBy = CH.config.activiti.allTasksOrderBy?:[:]		
+		def orderBy = Holders.config.activiti.allTasksOrderBy?:[:]		
 		if (params.sort) {
 			orderBy << ["${params.sort}":params.order]
 		}
@@ -113,7 +112,7 @@ class ActivitiService {
 		Task task = taskService.createTaskQuery().taskId(taskId).singleResult()
 		def id = getDomainObjectId(task)
 		if (id) {
-			def domainClass = AH.getApplication().classLoader.loadClass(domainClassName?:getDomainClassName(task))
+			def domainClass = getGrailsApplication().classLoader.loadClass(domainClassName?:getDomainClassName(task))
 			domainClass.get(id)?.delete(flush: true)
 		}
 		return id
@@ -208,7 +207,7 @@ class ActivitiService {
 				users = identityService.createUserQuery()
 					      .memberOfGroup(identityLink.groupId)
 								.orderByUserId().asc().list()
-				if (AH.application.mainContext.pluginManager.hasGrailsPlugin('activitiSpringSecurity')) {				
+				if (Holders.grailsApplication.mainContext.pluginManager.hasGrailsPlugin('activitiSpringSecurity')) {				
 			    userIds << users?.collect { it."$usernamePropertyName" }
 				} else { 
 				  userIds << users?.collect { it.id }
