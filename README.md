@@ -16,6 +16,6 @@ http://dl.bintray.com/alephsa/maven
 
 # Installation
 
-'''
+```
 grails install-plugin activiti
-'''
+```
