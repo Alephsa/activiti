@@ -311,21 +311,22 @@ class ActivitiGrailsPlugin {
     }
 
     def onChange = { event ->
-        println "Reloading ${event.source}..."
+        println "Reloading grails activiti ${event.source}..."
         if (!(event.source instanceof Resource)) {  		  
-            if(application.isControllerClass(event.source)) {
-                def controllerClass = application.addArtefact(ControllerArtefactHandler.TYPE, event.source)			
+            println "Controllers marked with 'activiti' hasn't been reloaded with activitiService check http://stackoverflow.com/questions/24122765/spring-security-core-plugin-grails-2-4-upgrade-from-2-3-7-issue"
+            /*if(application.isControllerClass(event.source)) {
+                def controllerClass = application.addArtefact(ControllerArtefactHandler.TYPE, event.source)
                 if (controllerClass.hasProperty("activiti") && controllerClass.clazz.activiti) {
                     controllerClass.metaClass.getActivitiService = {-> return event.ctx.activitiService}
                     addActivitiMethods(controllerClass)
                 }
-            }
+            }*/
         } else { // it is org.springframework.core.io.Resource
             event.ctx.repositoryService.createDeployment()
             .name(ActivitiConstants.PLUGIN_AUTO_DEPLOYMENT_NAME)
             .addInputStream(event.source.filename, event.source.inputStream)
             .deploy()
-        } 		
+        } 
     }
 
     def onConfigChange = { event ->
