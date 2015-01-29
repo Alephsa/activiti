@@ -23,7 +23,6 @@
  * 
  */
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 import grails.util.BuildSettingsHolder as build
 
 includeTargets << grailsScript("Init")

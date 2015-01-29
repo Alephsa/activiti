@@ -20,10 +20,10 @@
  --%>
  
 <%@ page import="org.activiti.engine.task.Task" %>
-<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
+<%@ page import="grails.util.Holders" %>
 <%@ page import="org.grails.activiti.ActivitiConstants" %>
 
-<g:set var="sessionUsernameKey" value="${ConfigurationHolder.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY}" />
+<g:set var="sessionUsernameKey" value="${Holders.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY}" />
 
 <html>
     <head>
