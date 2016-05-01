@@ -24,10 +24,10 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-        compile ('org.activiti:activiti-engine:5.17.0') {
+        compile ('org.activiti:activiti-engine:5.20.0') {
             excludes 'livetribe-jsr223', 'spring-beans'
         }
-        runtime ('org.activiti:activiti-spring:5.17.0') {
+        runtime ('org.activiti:activiti-spring:5.20.0') {
             excludes 'spring-context', 'spring-jdbc', 'spring-orm', 'slf4j-log4j12', 'commons-dbcp'
         }
         //runtime 'org.springframework:spring-asm:3.1.4.RELEASE'

@@ -20,7 +20,7 @@ import grails.util.Environment
 import grails.util.Holders
 import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
 //import org.grails.activiti.task.GlobalUserTaskEventListener
-import org.springframework.core.io.Resource 
+import org.springframework.core.io.Resource
 import org.grails.activiti.ActivitiConstants
 import org.grails.activiti.serializable.SerializableVariableType
 
@@ -32,7 +32,7 @@ import org.grails.activiti.serializable.SerializableVariableType
  */
 class ActivitiGrailsPlugin {
     // the plugin version
-    def version = "5.17.0.1"
+    def version = "5.20.0"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.0.0 > *"
     // the other plugins this plugin depends on
@@ -48,8 +48,8 @@ class ActivitiGrailsPlugin {
     def authorEmail = "limcheekin@vobject.com"
     def title = "Grails Activiti Plugin - Enabled Activiti BPM Suite support for Grails"
     def description = '''
- Grails Activiti Plugin is created to integrate Activiti BPM Suite and workflow system to Grails Framework. 
- With the Grails Activiti Plugin, workflow application can be created at your fingertips! 
+ Grails Activiti Plugin is created to integrate Activiti BPM Suite and workflow system to Grails Framework.
+ With the Grails Activiti Plugin, workflow application can be created at your fingertips!
 
  Project Site and Documentation: http://code.google.com/p/grails-activiti-plugin/
  Source Code: https://github.com/limcheekin/activiti
@@ -62,17 +62,17 @@ class ActivitiGrailsPlugin {
 
     def license = "APACHE"
     def issueManagement = [system: 'GitHub', url: 'https://github.com/limcheekin/activiti/issues']
-    def scm = [url: 'https://github.com/limcheekin/activiti'] 
+    def scm = [url: 'https://github.com/limcheekin/activiti']
 
 	def confWatchedResources = [Holders.config.activiti.deploymentResources, "file:./grails-app/controllers/**/*.groovy"].flatten()
 	def defaultWatchedResources = [ActivitiConstants.DEFAULT_DEPLOYMENT_RESOURCES, "file:./grails-app/controllers/**/*.groovy"].flatten()
     def watchedResources = confWatchedResources?:defaultWatchedResources
-	  
+
     String sessionUsernameKey = Holders.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY
     boolean useFormKey = Holders.config.activiti.useFormKey?:ActivitiConstants.DEFAULT_USE_FORM_KEY
 
     def doWithWebDescriptor = { xml ->
-        // TODO Implement additions to web.xml (optional), this event occurs before 
+        // TODO Implement additions to web.xml (optional), this event occurs before
     }
 
     def doWithSpring = {
@@ -95,12 +95,12 @@ class ActivitiGrailsPlugin {
             return listeners
         }
         def isUsedGlobalUserTaskEventListener = false
-            
+
 		  def disabledActiviti = System.getProperty("disabledActiviti")
-		  
+
 		  if (!disabledActiviti && !Holders.config.activiti.disabled) {
-		    	println "Configuring Activiti Process Engine ..."	
-          
+		    	log.debug "Configuring Activiti Process Engine ..."
+
                 //dynamic define user task event litener listeners:
                 /**
                  * 1. define user task event litener beans name in grails app conf/config.groovy:
@@ -113,7 +113,7 @@ class ActivitiGrailsPlugin {
                  *      myCreateTaskListener2(MyCreateTaskListener2)
                  *      myAssignmentTaskListener1(MyAssignmentTaskListener1Service)
                  *      ...
-                 
+
                 globalUserTaskEventListener(GlobalUserTaskEventListener) {
                     def listeners = []
                     listeners = activitiListenersRef(application.config.activiti.globalCreateTaskListenersName)
@@ -131,7 +131,7 @@ class ActivitiGrailsPlugin {
                         completeTaskListeners = listeners
                         isUsedGlobalUserTaskEventListener = true
                     }
-                }          
+                }
 				*/
 		    	processEngineConfiguration(org.activiti.spring.SpringProcessEngineConfiguration) {
 		            processEngineName = Holders.config.activiti.processEngineName?:ActivitiConstants.DEFAULT_PROCESS_ENGINE_NAME
@@ -151,7 +151,7 @@ class ActivitiGrailsPlugin {
 
                     // Define custom serializable types for fix issue with serialization
                     customPreVariableTypes = [new SerializableVariableType()]
-                    
+
                     //dynamic define pre. BPMN parse litener listeners:
                     /**
                      * 1. define BPMN parse. litener beans name in grails app conf/config.groovy:
@@ -166,29 +166,29 @@ class ActivitiGrailsPlugin {
                     if (isUsedGlobalUserTaskEventListener)
                         listeners << ref('globalUserTaskEventListener')
                     if (listeners)
-                        preParseListeners = listeners                    
+                        preParseListeners = listeners
 		        }
-				
+
 				  processEngine(org.activiti.spring.ProcessEngineFactoryBean) {
 					  processEngineConfiguration = ref("processEngineConfiguration")
 				  }
-		
-		    	runtimeService(processEngine:"getRuntimeService") 
+
+		    	runtimeService(processEngine:"getRuntimeService")
 		        repositoryService(processEngine:"getRepositoryService")
-		    	taskService(processEngine:"getTaskService") 
-		    	managementService(processEngine:"getManagementService") 
+		    	taskService(processEngine:"getTaskService")
+		    	managementService(processEngine:"getManagementService")
 		    	identityService(processEngine:"getIdentityService")
 		    	historyService(processEngine:"getHistoryService")
 		        formService(processEngine:"getFormService")
-				
+
 		        activitiService(org.grails.activiti.ActivitiService) {
 		            runtimeService = ref("runtimeService")
 		            taskService = ref("taskService")
 		            identityService = ref("identityService")
 		            formService = ref("formService")
 		        }
-			  
-				println "... finished configuring Activiti Process Engine."
+
+				log.debug "... finished configuring Activiti Process Engine."
 		  }
     }
 
@@ -213,43 +213,43 @@ class ActivitiGrailsPlugin {
                 redirect uri:getTaskFormUri(task.id, useFormKey)
             }
         }
-				
+
         controllerClass.metaClass.startTask = { String taskId ->
             activitiService.with {
                 claimTask(taskId, session[sessionUsernameKey])
                 redirect uri:getTaskFormUri(taskId, useFormKey)
             }
         }
-							
+
         controllerClass.metaClass.getForm = { String taskId ->
             redirect uri:activitiService.getTaskFormUri(taskId, useFormKey)
         }
-				
+
         controllerClass.metaClass.saveTask = { Map params ->
             params.domainClassName = getDomainClassName(delegate)
             activitiService.setTaskFormUri(params)
         }
-				
+
         controllerClass.metaClass.completeTask = { Map params ->
             params.domainClassName = getDomainClassName(delegate)
             activitiService.completeTask(params.taskId, params)
         }
-						
+
         controllerClass.metaClass.claimTask = { String taskId ->
             activitiService.claimTask(taskId, session[sessionUsernameKey])
         }
-				
+
         controllerClass.metaClass.revokeTask = { String taskId ->
             activitiService.claimTask(taskId, null)
         }
-				
+
         controllerClass.metaClass.deleteTask = { String taskId, String domainClassName = null ->
             if (!domainClassName && delegate.class != org.grails.activiti.TaskController) {
                 domainClassName = getDomainClassName(delegate)
             }
             activitiService.deleteTask(taskId, domainClassName)
         }
-		
+
         controllerClass.metaClass.setAssignee = { String taskId, String username ->
             if (username) {
                 activitiService.setAssignee(taskId, username)
@@ -257,24 +257,24 @@ class ActivitiGrailsPlugin {
                 revokeTask(taskId)
             }
         }
-				
+
         controllerClass.metaClass.setPriority = { String taskId, int priority ->
             activitiService.setPriority(taskId, priority)
         }
-						
-		
+
+
         controllerClass.metaClass.getUnassignedTasksCount = {->
             activitiService.getUnassignedTasksCount(session[sessionUsernameKey])
         }
-				
+
         controllerClass.metaClass.getAssignedTasksCount = {->
             activitiService.getAssignedTasksCount(session[sessionUsernameKey])
         }
-				
+
         controllerClass.metaClass.getAllTasksCount = {->
             activitiService.getAllTasksCount()
         }
-				
+
         controllerClass.metaClass.findUnassignedTasks = { Map params ->
             params[sessionUsernameKey] = session[sessionUsernameKey]
             if (!params.sort) {
@@ -283,7 +283,7 @@ class ActivitiGrailsPlugin {
             }
             activitiService.findUnassignedTasks(params)
         }
-				
+
         controllerClass.metaClass.findAssignedTasks = { Map params ->
             params[sessionUsernameKey] = session[sessionUsernameKey]
             if (!params.sort) {
@@ -292,7 +292,7 @@ class ActivitiGrailsPlugin {
             }
             activitiService.findAssignedTasks(params)
         }
-				
+
         controllerClass.metaClass.findAllTasks = { Map params ->
             if (!params.sort) {
                 params.sort = "createTime"
@@ -305,14 +305,14 @@ class ActivitiGrailsPlugin {
     private getDomainClassName(delegate) {
         return "${delegate.class.package.name}.${GrailsNameUtils.getLogicalName(delegate.class.name, 'Controller')}"
     }
-		
+
     def doWithApplicationContext = { applicationContext ->
         // TODO Implement post initialization spring config (optional)
     }
 
     def onChange = { event ->
         println "Reloading grails activiti ${event.source}..."
-        if (!(event.source instanceof Resource)) {  		  
+        if (!(event.source instanceof Resource)) {
             println "Controllers marked with 'activiti' hasn't been reloaded with activitiService check http://stackoverflow.com/questions/24122765/spring-security-core-plugin-grails-2-4-upgrade-from-2-3-7-issue"
             /*if(application.isControllerClass(event.source)) {
                 def controllerClass = application.addArtefact(ControllerArtefactHandler.TYPE, event.source)
@@ -326,7 +326,7 @@ class ActivitiGrailsPlugin {
             .name(ActivitiConstants.PLUGIN_AUTO_DEPLOYMENT_NAME)
             .addInputStream(event.source.filename, event.source.inputStream)
             .deploy()
-        } 
+        }
     }
 
     def onConfigChange = { event ->
